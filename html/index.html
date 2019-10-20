@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width"/>
+	<title>Laboratório de Física</title>
+</head>
+<body>
+	<h1> Laboratório de Física</h1>
+
+	<canvas id="myChart" width="400" height="400"></canvas>
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+	<script type="text/javascript" charset="utf-8">
+
+		var ctx = document.getElementById('myChart').getContext('2d');
+		var data =  {
+                	labels: [],
+                	datasets: [{
+                    		label: "Random Dataset",
+                    		backgroundColor: 'rgb(255, 99, 132)',
+                    		borderColor: 'rgb(255, 99, 132)',
+                    		data: [],
+                    		fill: false,
+                	}]
+            	};
+		var options = {};
+		var myChart = new Chart(ctx, {
+			type: 'line',
+			data: data,
+			options: options
+		});
+
+    		var socket = io();
+    		socket.on('connect', function() {
+			socket.emit('log', {data: 'cliente Conectado!!'});
+    		});
+
+		socket.on('log', function(msg){
+			console.log(msg.data);
+		});
+
+		socket.on('updateChartData', function(data){
+			let value = data.value;
+			let timeStamp = data.timeStamp;
+			
+			if (myChart.data.labels.length === 20) {
+	        		myChart.data.labels.shift();
+				myChart.data.datasets[0].data.shift();
+	    		}
+ 	    		myChart.data.labels.push(timeStamp);
+	    		myChart.data.datasets[0].data.push(value);
+	    		myChart.update();
+
+		});
+	</script>
+</body>
+</html>
